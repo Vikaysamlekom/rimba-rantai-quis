@@ -2,12 +2,13 @@ RIMBA RANTAI - Web Kuis (Misi 1-5)
 
 Cara pakai:
 1. Ekstrak zip ini, lalu buka index.html di browser (klik dua kali).
-2. Untuk dipasang online: unggah index.html ke hosting statis
-   (Netlify, GitHub Pages, Vercel, atau hosting sekolah).
+2. Untuk dipasang di Vercel, impor repositori ini dan gunakan root
+   repositori sebagai Root Directory; index.html sudah berada di sana.
+   File yang sama juga bisa diunggah ke hosting statis lainnya.
 3. Halaman guru: tambahkan #guru di akhir alamat web
    (contoh: https://situsmu.com/index.html#guru).
-   Di sana guru menempelkan kode rekap siswa dan bisa menyalin
-   rekap kelas sebagai CSV.
+   Di sana guru menempelkan kode rekap siswa, mencetak PDF, atau
+   mengunduh rekap kelas sebagai CSV.
 
 Catatan:
 - Seluruh kode ada dalam satu file (HTML, CSS, JavaScript).
