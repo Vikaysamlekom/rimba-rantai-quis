@@ -1,0 +1,17 @@
+RIMBA RANTAI - Web Kuis (Misi 1-5)
+
+Cara pakai:
+1. Ekstrak zip ini, lalu buka index.html di browser (klik dua kali).
+2. Untuk dipasang online: unggah index.html ke hosting statis
+   (Netlify, GitHub Pages, Vercel, atau hosting sekolah).
+3. Halaman guru: tambahkan #guru di akhir alamat web
+   (contoh: https://situsmu.com/index.html#guru).
+   Di sana guru menempelkan kode rekap siswa dan bisa menyalin
+   rekap kelas sebagai CSV.
+
+Catatan:
+- Seluruh kode ada dalam satu file (HTML, CSS, JavaScript).
+- Font Baloo 2 dan Nunito dimuat dari Google Fonts; tanpa internet,
+  tampilan memakai font bawaan perangkat.
+- Penyimpanan bersama lewat Claude tidak aktif di luar claude.ai;
+  rekap memakai penyimpanan browser dan kode rekap siswa.

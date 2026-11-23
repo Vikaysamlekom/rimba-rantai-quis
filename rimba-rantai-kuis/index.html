@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rimba Rantai – Gerbang Misi</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg1:#cfeab4;--bg2:#6fae5f;--bg3:#2f5d34;--card:#fbf3d9;--card2:#f3e4b5;--ink:#2d3b22;--green:#2f7a3f;--wood:#8a4b24;--btn:#f9b934;--btn-ink:#5a1620;--edge:#8b1e2d;--ok:#2e9b4e;--bad:#c9412f;--okbg:#d8f0c8;--badbg:#f9d6cd;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2c4a2a;--bg2:#1f3a21;--bg3:#12251a;--card:#2a3a24;--card2:#34482d;--ink:#f3ecd0;--green:#8fd18a;--btn-ink:#4a1018;--okbg:#27502f;--badbg:#5a2a24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg1:#2c4a2a;--bg2:#1f3a21;--bg3:#12251a;--card:#2a3a24;--card2:#34482d;--ink:#f3ecd0;--green:#8fd18a;--btn-ink:#4a1018;--okbg:#27502f;--badbg:#5a2a24;color-scheme:dark}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;font-family:"Nunito",system-ui,sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--bg1),var(--bg2) 55%,var(--bg3)) fixed;display:flex;justify-content:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg1);z-index:10}
+#app{width:100%;max-width:720px;padding:18px 14px 40px}
+h1,h2,h3,.btn{font-family:"Baloo 2","Nunito",system-ui,sans-serif}
+.sign{background:linear-gradient(var(--wood),#6d3a1a);color:#fff3cf;border:4px solid #5a2f14;border-radius:18px;padding:10px 18px;text-align:center;box-shadow:0 6px 0 #3f200d;margin:6px auto 18px;max-width:520px}
+.sign h1{margin:0;font-size:clamp(26px,7vw,40px);letter-spacing:1px;line-height:1.1}
+.sign p{margin:2px 0 0;font-weight:800;opacity:.9}
+.card{background:var(--card);border:3px solid var(--card2);border-radius:22px;padding:20px;box-shadow:0 8px 0 rgba(0,0,0,.18);position:relative;margin-bottom:16px}
+.card h2{margin:0 0 8px;color:var(--green);font-size:26px}
+.hero{font-size:64px;text-align:center;line-height:1;margin:4px 0 8px}
+.bubble{display:flex;gap:10px;align-items:flex-start;background:var(--card2);border-radius:16px;padding:12px 14px;font-weight:700}
+.bubble b.av{font-size:30px;line-height:1}
+.btn{appearance:none;cursor:pointer;border:3px solid var(--edge);background:var(--btn);color:var(--btn-ink);font-weight:800;font-size:20px;padding:10px 24px;border-radius:14px;box-shadow:0 5px 0 var(--edge);transition:transform .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--edge)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--wood);box-shadow:0 4px 0 var(--wood);font-size:16px;padding:6px 16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:14px}
+input[type=text]{width:100%;font:800 20px "Nunito",system-ui,sans-serif;padding:12px 14px;border-radius:14px;border:3px solid var(--wood);background:#fffdf3;color:#2d3b22;margin-top:10px}
+.err{color:var(--bad);font-weight:800;min-height:22px;margin-top:6px;text-align:center}
+.path{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}
+.node{background:var(--card2);border:3px solid var(--wood);border-radius:16px;padding:10px 2px;text-align:center;cursor:pointer;font-weight:800;font-size:13px;color:var(--ink);font-family:inherit}
+.node .ic{display:block;font-size:28px}
+.node.done{background:var(--okbg);border-color:var(--ok)}
+.node.now{background:var(--btn);border-color:var(--edge);color:var(--btn-ink);animation:bob 1.4s ease-in-out infinite}
+.node.lock{opacity:.55;cursor:not-allowed}
+@keyframes bob{50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){.node.now{animation:none}}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-weight:700;font-size:15px}
+th,td{padding:8px 10px;text-align:center;border-bottom:2px dashed var(--card2);white-space:nowrap}
+th{color:var(--green);font-family:"Baloo 2",system-ui,sans-serif}
+td:first-child,th:first-child{text-align:left}
+.tot{font-weight:800;color:var(--wood)}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:12px}
+.dots i{width:34px;height:10px;border-radius:6px;background:var(--card2)}
+.dots i.on{background:var(--btn)}.dots i.ok{background:var(--ok)}.dots i.no{background:var(--bad)}
+.q{font-size:21px;font-weight:800;line-height:1.3;margin:6px 0 14px}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fffdf3;color:#2d3b22;border:3px solid var(--wood);border-radius:14px;padding:12px 14px;margin-bottom:10px;font:800 17px "Nunito",system-ui,sans-serif;cursor:pointer}
+.opt .l{flex:none;width:32px;height:32px;border-radius:50%;background:var(--btn);border:2px solid var(--edge);display:grid;place-items:center;color:var(--btn-ink)}
+.opt.ok{background:var(--okbg);border-color:var(--ok);color:#1d4a2a}
+.opt.no{background:var(--badbg);border-color:var(--bad);color:#6a1d12}
+.opt:disabled{cursor:default}
+.score{font-family:"Baloo 2",system-ui,sans-serif;font-size:72px;line-height:1;text-align:center;color:var(--wood);font-weight:800}
+.stars{text-align:center;font-size:36px;letter-spacing:6px}
+.small{font-size:13px;opacity:.8;text-align:center;margin-top:18px}
+.small a{color:inherit;cursor:pointer;text-decoration:underline}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+@media print{
+  @page{margin:16mm}
+  body.print-guru{display:block;background:#fff;color:#222}
+  body.print-guru::before{display:none}
+  body.print-guru #app{max-width:none;padding:0}
+  body.print-guru .sign{box-shadow:none;margin:0 auto 16px}
+  body.print-guru .card{border:1px solid #bbb;box-shadow:none;border-radius:0;padding:12px}
+  body.print-guru .no-print{display:none!important}
+  body.print-guru table{font-size:12pt}
+  body.print-guru th,body.print-guru td{border-bottom:1px solid #bbb}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// Setiap soal: [pertanyaan, [jawaban benar, salah, salah, salah], penjelasan Hoo]
+var M=[
+{t:"Kenali Rantai Makanan",ic:"🦊",q:[
+["Apa yang dimaksud dengan rantai makanan?",["Urutan makhluk hidup yang saling makan dan dimakan","Kumpulan tumbuhan di dalam hutan","Tempat tinggal hewan-hewan","Urutan musim dalam setahun"],"Rantai makanan adalah urutan makhluk hidup yang saling makan dan dimakan."],
+["Apa kunci dari rantai makanan?",["Energi","Warna","Suara","Cuaca"],"Kuncinya adalah ENERGI yang berpindah dari satu makhluk hidup ke makhluk hidup lain."],
+["Kapan energi berpindah dalam rantai makanan?",["Ketika satu makhluk hidup dimakan oleh makhluk hidup lainnya","Ketika hari mulai gelap","Ketika hewan sedang tidur","Ketika hujan turun"],"Energi berpindah saat satu makhluk hidup dimakan makhluk hidup lain."],
+["Elang memakan ular. Energi berpindah dari mana ke mana?",["Dari ular ke elang","Dari elang ke ular","Dari elang ke rumput","Tidak ada yang berpindah"],"Energi berpindah dari yang dimakan (ular) ke yang memakannya (elang)."]]},
+{t:"Tiga Peran",ic:"🌿",q:[
+["Makhluk hidup yang dapat membuat makanannya sendiri disebut ...",["Produsen","Konsumen","Pengurai","Pemangsa"],"Tumbuhan dapat membuat makanannya sendiri, jadi berperan sebagai PRODUSEN."],
+["Kelinci mendapatkan makanan dari tumbuhan. Kelinci berperan sebagai ...",["Konsumen","Produsen","Pengurai","Batu"],"Hewan mendapatkan makanan dari tumbuhan atau hewan lain, jadi berperan sebagai KONSUMEN."],
+["Jamur dan bakteri berperan menguraikan sisa makhluk hidup yang sudah mati. Peran ini disebut ...",["Pengurai","Produsen","Konsumen","Pemburu"],"Yang menguraikan sisa makhluk hidup yang mati adalah PENGURAI, contohnya jamur dan bakteri."],
+["Manakah pasangan peran dan contoh yang benar?",["Produsen: padi, Konsumen: belalang, Pengurai: jamur","Produsen: ular, Konsumen: rumput, Pengurai: padi","Produsen: jamur, Konsumen: bakteri, Pengurai: kelinci","Produsen: belalang, Konsumen: jamur, Pengurai: rumput"],"Padi adalah produsen, belalang adalah konsumen, dan jamur adalah pengurai."]]},
+{t:"Rantai di Hutan",ic:"🐸",q:[
+["Pada rantai makanan, panah menunjukkan ...",["Arah perpindahan energi dari yang dimakan ke yang memakan","Arah hewan berjalan","Arah angin bertiup","Jarak antar makhluk hidup"],"Panah menunjukkan arah perpindahan energi, dari yang dimakan ke yang memakannya."],
+["Pada rantai makanan hutan, siapakah produsennya?",["Rumput","Belalang","Katak","Elang"],"Rantai di hutan dimulai dari RUMPUT, tumbuhan yang membuat makanannya sendiri."],
+["Dalam rantai Rumput → Belalang → Katak → Ular → Elang, siapa yang memakan katak?",["Ular","Belalang","Rumput","Elang"],"Katak dimakan oleh ular, lalu energinya berpindah ke ular."],
+["Manakah urutan rantai makanan hutan yang benar?",["Rumput → Belalang → Katak → Ular → Elang","Elang → Ular → Katak → Belalang → Rumput","Rumput → Katak → Belalang → Elang → Ular","Belalang → Rumput → Ular → Katak → Elang"],"Urutannya: Rumput → Belalang → Katak → Ular → Elang."]]},
+{t:"Ekosistem Lain",ic:"🐟",q:[
+["Rantai Padi → Tikus → Ular → Elang ditemukan di ekosistem ...",["Sawah","Kolam","Laut","Gurun"],"Rantai Padi → Tikus → Ular → Elang ada di SAWAH."],
+["Pada rantai makanan di kolam (Alga → Ikan kecil → Ikan besar), siapa produsennya?",["Alga","Ikan kecil","Ikan besar","Elang"],"Di kolam, produsennya adalah ALGA."],
+["Pada rantai makanan di laut, produsen yang menjadi awal rantai adalah ...",["Fitoplankton","Tikus","Ular","Padi"],"Di laut, rantai dimulai dari FITOPLANKTON."],
+["Pada rantai makanan di sawah, siapa yang memakan tikus?",["Ular","Padi","Ikan kecil","Alga"],"Di sawah, tikus dimakan oleh ular."]]},
+{t:"Jika Ada yang Hilang",ic:"🦉",q:[
+["Jika jumlah ular berkurang, apa yang dapat terjadi pada jumlah tikus?",["Tikus bertambah","Tikus berkurang","Tikus berubah jadi ular","Tidak terjadi apa-apa"],"Ular berkurang, jadi tikus punya lebih sedikit pemangsa dan dapat bertambah."],
+["Mengapa jumlah tikus dapat bertambah?",["Karena pemangsanya (ular) berkurang","Karena padi berkurang","Karena elang bertambah","Karena hujan turun"],"Lebih sedikit tikus yang dimangsa ular, sehingga tikus dapat bertambah."],
+["Jika tikus bertambah banyak, apa yang terjadi pada padi?",["Padi lebih banyak dimakan dan menipis","Padi bertambah banyak","Padi berubah menjadi jamur","Padi tidak terpengaruh"],"Tikus yang bertambah dapat memakan lebih banyak padi, sehingga padi menipis."],
+["Apa pesan penting dari Pos 5?",["Semua makhluk hidup saling terhubung, perubahan satu bagian dapat memengaruhi bagian lain","Setiap hewan hidup sendiri-sendiri","Hilangnya satu hewan tidak berpengaruh","Hanya tumbuhan yang penting"],"Semua makhluk hidup saling terhubung. Perubahan satu bagian dapat memengaruhi bagian lain."]]}
+];
+var $=function(s){return document.querySelector(s)}, app=$("#app");
+var S={name:"",sc:[null,null,null,null,null]};
+var cur=null; // kuis berjalan
+var remote=[],unsub=null;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"siswa"}
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function total(sc){var d=sc.filter(function(x){return x!==null});return d.length?Math.round(d.reduce(function(a,b){return a+b},0)/5):0}
+function save(){
+  ls("rr_cur",S);var all=ls("rr_all")||{};all[slug(S.name)]={name:S.name,scores:S.sc,at:Date.now()};ls("rr_all",all);
+  try{if(window.claude&&claude.use)claude.use("db").then(function(db){if(db)return db.collection("results").doc(slug(S.name)).set({name:S.name,scores:S.sc,total:total(S.sc),at:Date.now()})}).catch(function(){})}catch(e){}
+}
+function recapTable(sc){
+  var h='<div class="wrap"><table><tr><th>Misi</th><th>Benar</th><th>Nilai</th></tr>';
+  M.forEach(function(m,i){var v=sc[i];h+='<tr><td>'+m.ic+' Misi '+(i+1)+'</td><td>'+(v===null?'–':(v/25)+' / 4')+'</td><td>'+(v===null?'–':v)+'</td></tr>'});
+  return h+'<tr class="tot"><td>Rata-rata</td><td></td><td>'+(sc.some(function(x){return x!==null})?total(sc):'–')+'</td></tr></table></div>';
+}
+function foot(){return '<p class="small">Rimba Rantai · Petualangan Si Penjelajah Cilik · <a onclick="location.hash=\'guru\'">Halaman guru</a></p>'}
+function sign(sub){return '<div class="sign"><h1>GERBANG MISI</h1><p>'+sub+'</p></div>'}
+
+function home(){
+  S=ls("rr_cur")||S;
+  app.innerHTML=sign("Rimba Rantai")+'<div class="card"><div class="hero">🧭🦉</div><h2 style="text-align:center">Halo, Penjelajah Cilik!</h2>'+
+  '<div class="bubble"><b class="av">🦉</b><span>Aku Hoo! Selesaikan 5 misi bersama Kiko. Isi namamu dulu, ya.</span></div>'+
+  '<input type="text" id="nm" maxlength="40" placeholder="Tulis nama lengkapmu" autocomplete="off" value="'+esc(S.name)+'">'+
+  '<div class="err" id="er"></div><div class="row"><button class="btn" onclick="start()">MULAI PETUALANGAN</button></div></div>'+foot();
+  $("#nm").addEventListener("keydown",function(e){if(e.key==="Enter")start()});
+}
+function start(){
+  var n=$("#nm").value.trim();if(n.length<2){$("#er").textContent="Tulis namamu dulu, ya (minimal 2 huruf).";return}
+  var all=ls("rr_all")||{},ex=all[slug(n)];
+  S={name:n,sc:ex?ex.scores:[null,null,null,null,null]};save();map();
+}
+function map(){
+  var next=S.sc.findIndex(function(x){return x===null}),all=next===-1;
+  var h=sign("Penjelajah: "+esc(S.name))+'<div class="card"><h2>Peta Misi</h2><div class="path">';
+  M.forEach(function(m,i){var st=S.sc[i]!==null?"done":(i===next?"now":"lock");
+    h+='<button class="node '+st+'" '+(st==="lock"?'disabled':'onclick="quiz('+i+')"')+'><span class="ic">'+(st==="done"?"✅":m.ic)+'</span>Misi '+(i+1)+'</button>'});
+  h+='</div>';
+  h+=all?'<div class="bubble"><b class="av">🏆</b><span>HEBAT, '+esc(S.name)+'! Kamu menyelesaikan Petualangan Rimba Rantai. Terus jaga keseimbangan alam, ya!</span></div>':
+  '<div class="bubble"><b class="av">🦉</b><span>Selanjutnya: <b>Misi '+(next+1)+' – '+M[next].t+'</b>. Kamu bisa ulangi misi yang sudah selesai untuk memperbaiki nilai.</span></div>';
+  h+='</div><div class="card"><h2>Rekap Nilai</h2>'+recapTable(S.sc)+'<div class="bubble" style="margin-top:14px"><b class="av">📮</b><span>Kirim kode ini ke gurumu:<br><b style="word-break:break-all;user-select:all">'+code()+'</b></span></div><div class="row"><button class="btn ghost" onclick="copyCode()">Salin kode</button></div></div><div class="row"><button class="btn ghost" onclick="newKid()">Ganti siswa</button></div>'+foot();
+  app.innerHTML=h;window.scrollTo(0,0);
+}
+function newKid(){S={name:"",sc:[null,null,null,null,null]};ls("rr_cur",S);home()}
+function quiz(i){
+  cur={m:i,n:0,ok:0,res:[],qs:shuffle(M[i].q).map(function(q){return{q:q[0],o:shuffle(q[1]),a:q[1][0],e:q[2]}})};
+  qshow();
+}
+function qshow(){
+  var c=cur,q=c.qs[c.n],h='<div class="topbar"><span>'+M[c.m].ic+' Misi '+(c.m+1)+': '+M[c.m].t+'</span><span>'+esc(S.name)+'</span></div><div class="card"><div class="dots">';
+  c.qs.forEach(function(_,k){h+='<i class="'+(c.res[k]===1?'ok':c.res[k]===0?'no':k===c.n?'on':'')+'"></i>'});
+  h+='</div><div class="q">'+(c.n+1)+'. '+esc(q.q)+'</div><div id="os">';
+  q.o.forEach(function(o,k){h+='<button class="opt" data-k="'+k+'"><span class="l">'+"ABCD"[k]+'</span><span>'+esc(o)+'</span></button>'});
+  h+='</div><div id="fb"></div></div>';app.innerHTML=h;window.scrollTo(0,0);
+  document.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){pick(+b.dataset.k)}});
+}
+function pick(k){
+  var c=cur,q=c.qs[c.n],good=q.o[k]===q.a;c.res[c.n]=good?1:0;if(good)c.ok++;
+  document.querySelectorAll(".opt").forEach(function(b){b.disabled=true;var o=q.o[+b.dataset.k];if(o===q.a)b.classList.add("ok");else if(+b.dataset.k===k)b.classList.add("no")});
+  var last=c.n===c.qs.length-1;
+  $("#fb").innerHTML='<div class="bubble" style="margin-top:6px"><b class="av">🦉</b><span>'+(good?"Tepat sekali! ":"Belum tepat. ")+esc(q.e)+'</span></div><div class="row"><button class="btn" onclick="nextQ()">'+(last?"LIHAT HASIL":"LANJUT ›")+'</button></div>';
+  document.querySelector(".dots").children[c.n].className=good?"ok":"no";
+}
+function nextQ(){cur.n++;if(cur.n<cur.qs.length)qshow();else finish()}
+function finish(){
+  var v=cur.ok*25,i=cur.m;S.sc[i]=v;save();
+  var st=cur.ok===4?3:cur.ok===3?2:cur.ok===2?1:0;
+  var msg=cur.ok===4?"Sempurna! Kamu penjelajah hebat!":cur.ok>=3?"Bagus sekali! Sedikit lagi sempurna.":"Semangat! Pelajari lagi pos belajarnya dan coba ulangi misi ini.";
+  var nx=S.sc.findIndex(function(x){return x===null});
+  app.innerHTML=sign("Misi "+(i+1)+" selesai")+'<div class="card"><div class="stars">'+"⭐".repeat(st)+"☆".repeat(3-st)+'</div><div class="score">'+v+'</div>'+
+  '<p style="text-align:center;font-weight:800">Benar '+cur.ok+' dari 4 soal</p><div class="bubble"><b class="av">🦉</b><span>'+msg+'</span></div>'+
+  '<div class="row"><button class="btn ghost" onclick="quiz('+i+')">Ulangi misi</button><button class="btn" onclick="map()">'+(nx===-1?"LIHAT REKAP AKHIR":"KE PETA MISI")+'</button></div></div>'+
+  '<div class="card"><h2>Rekap Sementara</h2>'+recapTable(S.sc)+'</div>'+foot();window.scrollTo(0,0);
+}
+function code(){try{return btoa(unescape(encodeURIComponent(JSON.stringify([S.name,S.sc]))))}catch(e){return""}}
+function copyCode(){try{navigator.clipboard.writeText(code())}catch(e){}}
+function importCodes(){var ls2=$("#imp").value.split(/\s+/).filter(Boolean),all=ls("rr_all")||{},n=0;
+ls2.forEach(function(c){try{var d=JSON.parse(decodeURIComponent(escape(atob(c))));if(typeof d[0]==="string"&&Array.isArray(d[1])){all[slug(d[0])]={name:d[0].slice(0,40),scores:d[1].slice(0,5).map(function(x){return typeof x==="number"?Math.max(0,Math.min(100,x)):null}),at:Date.now()};n++}}catch(e){}});
+ls("rr_all",all);teacher();$("#er").textContent=n+" kode berhasil ditambahkan."}
+// ---- Halaman guru: #guru
+function teacher(){
+  document.body.classList.add("print-guru");
+  var all=ls("rr_all")||{},mp={};
+  Object.keys(all).forEach(function(k){mp[k]={name:all[k].name,scores:all[k].scores,at:all[k].at}});
+  remote.forEach(function(r){var k=slug(r.name||"");if(!mp[k]||(r.at||0)>=(mp[k].at||0))mp[k]={name:r.name,scores:r.scores||[],at:r.at}});
+  var rows=Object.keys(mp).map(function(k){return mp[k]}).sort(function(a,b){return a.name.localeCompare(b.name)});
+  var h=sign("Rekap Nilai Kelas")+'<div class="card"><h2>Rekap per Siswa</h2><div class="wrap"><table><tr><th>Nama</th>';
+  for(var i=1;i<=5;i++)h+='<th>M'+i+'</th>';h+='<th>Rata-rata</th></tr>';
+  rows.forEach(function(r){var sc=r.scores||[];h+='<tr><td>'+esc(r.name)+'</td>';for(var i=0;i<5;i++)h+='<td>'+(sc[i]==null?'–':sc[i])+'</td>';h+='<td class="tot">'+total(sc.map(function(x){return x==null?null:x}))+'</td></tr>'});
+  if(!rows.length)h+='<tr><td colspan="7">Belum ada data.</td></tr>';
+  h+='</table></div><div class="no-print"><p style="font-weight:800;margin:14px 0 0">Tempel kode rekap siswa (satu per baris):</p><textarea id="imp" rows="4" style="width:100%;margin-top:6px;border-radius:12px;border:3px solid var(--wood);padding:10px;font:600 14px monospace;background:#fffdf3;color:#2d3b22"></textarea><div class="row"><button class="btn" onclick="importCodes()">Tambah ke rekap</button></div></div><div class="row no-print"><button class="btn" onclick="printTeacher()">Cetak PDF</button><button class="btn" onclick="downloadCsv()">Cetak CSV</button><button class="btn ghost" onclick="location.hash=\'\'">Kembali</button></div><div class="err no-print" id="er" style="color:var(--green)"></div></div>'+
+  '<p class="small no-print">Data tampil dari perangkat ini dan, bila tersedia, dari penyimpanan bersama.</p>';
+  window._rows=rows;app.innerHTML=h;
+}
+function printTeacher(){window.print()}
+function downloadCsv(){
+  var rows=window._rows||[];
+  var csv=[["Nama","Misi 1","Misi 2","Misi 3","Misi 4","Misi 5","Rata-rata"]].concat(rows.map(function(r){
+    var s=r.scores||[];
+    return[r.name].concat([0,1,2,3,4].map(function(i){return s[i]==null?"":s[i]}),total(s));
+  })).map(function(row){return row.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+  var blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+  var url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="rekap-nilai-rimba-rantai.csv";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function route(){
+  if(unsub){try{unsub()}catch(e){}unsub=null}
+  if(location.hash==="#guru"){
+    teacher();
+    try{if(window.claude&&claude.use)claude.use("db").then(function(db){if(!db||location.hash!=="#guru")return;unsub=db.collection("results").onSnapshot(function(sn){remote=sn.docs.map(function(d){return d.data()});if(location.hash==="#guru")teacher()},function(){})}).catch(function(){})}catch(e){}
+  }else{document.body.classList.remove("print-guru");S=ls("rr_cur")||S;S.name?map():home()}
+}
+window.addEventListener("hashchange",route);route();
+</script>
+</body>
+</html>
