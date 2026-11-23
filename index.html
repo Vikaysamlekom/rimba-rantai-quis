@@ -59,17 +59,6 @@ td:first-child,th:first-child{text-align:left}
 .small{font-size:13px;opacity:.8;text-align:center;margin-top:18px}
 .small a{color:inherit;cursor:pointer;text-decoration:underline}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45)}
-@media print{
-  @page{margin:16mm}
-  body.print-guru{display:block;background:#fff;color:#222}
-  body.print-guru::before{display:none}
-  body.print-guru #app{max-width:none;padding:0}
-  body.print-guru .sign{box-shadow:none;margin:0 auto 16px}
-  body.print-guru .card{border:1px solid #bbb;box-shadow:none;border-radius:0;padding:12px}
-  body.print-guru .no-print{display:none!important}
-  body.print-guru table{font-size:12pt}
-  body.print-guru th,body.print-guru td{border-bottom:1px solid #bbb}
-}
 </style>
 </head>
 <body>
@@ -112,9 +101,19 @@ function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(M
 function slug(n){return n.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40)||"siswa"}
 function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"null");localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
 function total(sc){var d=sc.filter(function(x){return x!==null});return d.length?Math.round(d.reduce(function(a,b){return a+b},0)/5):0}
+var SHEET_URL="https://script.google.com/macros/s/AKfycbw0Ifxd4HOjePFyib1MrjkgYwyl3oo6GQXSqG8tlXdy7d6hkOyrXoIdi_LguwqaqkFTyQ/exec"; // <-- TEMPEL URL Web App Google Apps Script (berakhiran /exec) DI SINI
+var PIN="";
+function say(t){var e=$("#sy");if(e)e.textContent=t}
+function sync(){
+  if(!SHEET_URL||!S.name)return;
+  say("Mengirim nilai ke guru...");
+  fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({id:S.id,name:S.name,scores:S.sc})})
+  .then(function(){ls("rr_pend",0);say("\u2705 Nilai tersimpan dan terkirim ke guru.")})
+  .catch(function(){ls("rr_pend",1);say("\u26A0\uFE0F Nilai belum terkirim. Pastikan internet aktif, akan dicoba lagi otomatis.")});
+}
 function save(){
-  ls("rr_cur",S);var all=ls("rr_all")||{};all[slug(S.name)]={name:S.name,scores:S.sc,at:Date.now()};ls("rr_all",all);
-  try{if(window.claude&&claude.use)claude.use("db").then(function(db){if(db)return db.collection("results").doc(slug(S.name)).set({name:S.name,scores:S.sc,total:total(S.sc),at:Date.now()})}).catch(function(){})}catch(e){}
+  if(!S.id)S.id=slug(S.name)+"-"+Math.random().toString(36).slice(2,6);
+  ls("rr_cur",S);var all=ls("rr_all")||{};all[slug(S.name)]={id:S.id,name:S.name,scores:S.sc,at:Date.now()};ls("rr_all",all);sync();
 }
 function recapTable(sc){
   var h='<div class="wrap"><table><tr><th>Misi</th><th>Benar</th><th>Nilai</th></tr>';
@@ -135,7 +134,7 @@ function home(){
 function start(){
   var n=$("#nm").value.trim();if(n.length<2){$("#er").textContent="Tulis namamu dulu, ya (minimal 2 huruf).";return}
   var all=ls("rr_all")||{},ex=all[slug(n)];
-  S={name:n,sc:ex?ex.scores:[null,null,null,null,null]};save();map();
+  S={name:n,id:(ex&&ex.id)||(slug(n)+"-"+Math.random().toString(36).slice(2,6)),sc:ex?ex.scores:[null,null,null,null,null]};save();map();
 }
 function map(){
   var next=S.sc.findIndex(function(x){return x===null}),all=next===-1;
@@ -145,7 +144,7 @@ function map(){
   h+='</div>';
   h+=all?'<div class="bubble"><b class="av">🏆</b><span>HEBAT, '+esc(S.name)+'! Kamu menyelesaikan Petualangan Rimba Rantai. Terus jaga keseimbangan alam, ya!</span></div>':
   '<div class="bubble"><b class="av">🦉</b><span>Selanjutnya: <b>Misi '+(next+1)+' – '+M[next].t+'</b>. Kamu bisa ulangi misi yang sudah selesai untuk memperbaiki nilai.</span></div>';
-  h+='</div><div class="card"><h2>Rekap Nilai</h2>'+recapTable(S.sc)+'<div class="bubble" style="margin-top:14px"><b class="av">📮</b><span>Kirim kode ini ke gurumu:<br><b style="word-break:break-all;user-select:all">'+code()+'</b></span></div><div class="row"><button class="btn ghost" onclick="copyCode()">Salin kode</button></div></div><div class="row"><button class="btn ghost" onclick="newKid()">Ganti siswa</button></div>'+foot();
+  h+='</div><div class="card"><h2>Rekap Nilai</h2>'+recapTable(S.sc)+(SHEET_URL?'':'<div class="bubble" style="margin-top:14px"><b class="av">📮</b><span>Kirim kode ini ke gurumu:<br><b style="word-break:break-all;user-select:all">'+code()+'</b></span></div><div class="row"><button class="btn ghost" onclick="copyCode()">Salin kode</button></div>')+'</div><div class="row"><button class="btn ghost" onclick="newKid()">Ganti siswa</button></div><p class="small" id="sy"></p>'+foot();
   app.innerHTML=h;window.scrollTo(0,0);
 }
 function newKid(){S={name:"",sc:[null,null,null,null,null]};ls("rr_cur",S);home()}
@@ -177,7 +176,7 @@ function finish(){
   app.innerHTML=sign("Misi "+(i+1)+" selesai")+'<div class="card"><div class="stars">'+"⭐".repeat(st)+"☆".repeat(3-st)+'</div><div class="score">'+v+'</div>'+
   '<p style="text-align:center;font-weight:800">Benar '+cur.ok+' dari 4 soal</p><div class="bubble"><b class="av">🦉</b><span>'+msg+'</span></div>'+
   '<div class="row"><button class="btn ghost" onclick="quiz('+i+')">Ulangi misi</button><button class="btn" onclick="map()">'+(nx===-1?"LIHAT REKAP AKHIR":"KE PETA MISI")+'</button></div></div>'+
-  '<div class="card"><h2>Rekap Sementara</h2>'+recapTable(S.sc)+'</div>'+foot();window.scrollTo(0,0);
+  '<div class="card"><h2>Rekap Sementara</h2>'+recapTable(S.sc)+'</div><p class="small" id="sy"></p>'+foot();window.scrollTo(0,0);
 }
 function code(){try{return btoa(unescape(encodeURIComponent(JSON.stringify([S.name,S.sc]))))}catch(e){return""}}
 function copyCode(){try{navigator.clipboard.writeText(code())}catch(e){}}
@@ -186,7 +185,6 @@ ls2.forEach(function(c){try{var d=JSON.parse(decodeURIComponent(escape(atob(c)))
 ls("rr_all",all);teacher();$("#er").textContent=n+" kode berhasil ditambahkan."}
 // ---- Halaman guru: #guru
 function teacher(){
-  document.body.classList.add("print-guru");
   var all=ls("rr_all")||{},mp={};
   Object.keys(all).forEach(function(k){mp[k]={name:all[k].name,scores:all[k].scores,at:all[k].at}});
   remote.forEach(function(r){var k=slug(r.name||"");if(!mp[k]||(r.at||0)>=(mp[k].at||0))mp[k]={name:r.name,scores:r.scores||[],at:r.at}});
@@ -195,28 +193,36 @@ function teacher(){
   for(var i=1;i<=5;i++)h+='<th>M'+i+'</th>';h+='<th>Rata-rata</th></tr>';
   rows.forEach(function(r){var sc=r.scores||[];h+='<tr><td>'+esc(r.name)+'</td>';for(var i=0;i<5;i++)h+='<td>'+(sc[i]==null?'–':sc[i])+'</td>';h+='<td class="tot">'+total(sc.map(function(x){return x==null?null:x}))+'</td></tr>'});
   if(!rows.length)h+='<tr><td colspan="7">Belum ada data.</td></tr>';
-  h+='</table></div><div class="no-print"><p style="font-weight:800;margin:14px 0 0">Tempel kode rekap siswa (satu per baris):</p><textarea id="imp" rows="4" style="width:100%;margin-top:6px;border-radius:12px;border:3px solid var(--wood);padding:10px;font:600 14px monospace;background:#fffdf3;color:#2d3b22"></textarea><div class="row"><button class="btn" onclick="importCodes()">Tambah ke rekap</button></div></div><div class="row no-print"><button class="btn" onclick="printTeacher()">Cetak PDF</button><button class="btn" onclick="downloadCsv()">Cetak CSV</button><button class="btn ghost" onclick="location.hash=\'\'">Kembali</button></div><div class="err no-print" id="er" style="color:var(--green)"></div></div>'+
-  '<p class="small no-print">Data tampil dari perangkat ini dan, bila tersedia, dari penyimpanan bersama.</p>';
+  h+='</table></div><p style="font-weight:800;margin:14px 0 0">Tempel kode rekap siswa (satu per baris):</p><textarea id="imp" rows="4" style="width:100%;margin-top:6px;border-radius:12px;border:3px solid var(--wood);padding:10px;font:600 14px monospace;background:#fffdf3;color:#2d3b22"></textarea><div class="row"><button class="btn" onclick="importCodes()">Tambah ke rekap</button></div><div class="row"><button class="btn" onclick="copyCsv()">Salin rekap (CSV)</button><button class="btn ghost" onclick="location.hash=\'\'">Kembali</button></div><div class="err" id="er" style="color:var(--green)"></div></div>'+
+  '<p class="small">Data tampil dari perangkat ini dan, bila tersedia, dari penyimpanan bersama.</p>';
   window._rows=rows;app.innerHTML=h;
 }
-function printTeacher(){window.print()}
-function downloadCsv(){
-  var rows=window._rows||[];
-  var csv=[["Nama","Misi 1","Misi 2","Misi 3","Misi 4","Misi 5","Rata-rata"]].concat(rows.map(function(r){
-    var s=r.scores||[];
-    return[r.name].concat([0,1,2,3,4].map(function(i){return s[i]==null?"":s[i]}),total(s));
-  })).map(function(row){return row.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
-  var blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
-  var url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="rekap-nilai-rimba-rantai.csv";
-  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+function copyCsv(){
+  var t="Nama,Misi 1,Misi 2,Misi 3,Misi 4,Misi 5,Rata-rata\n"+(window._rows||[]).map(function(r){var s=r.scores||[];return['"'+r.name.replace(/"/g,'""')+'"'].concat([0,1,2,3,4].map(function(i){return s[i]==null?"":s[i]}),total(s)).join(",")}).join("\n");
+  try{navigator.clipboard.writeText(t).then(function(){$("#er").textContent="Rekap tersalin. Tempel di Excel atau Google Sheets."},function(){$("#er").textContent="Gagal menyalin."})}catch(e){$("#er").textContent="Gagal menyalin."}
+}
+function teacherCloud(msg){
+  app.innerHTML=sign("Rekap Nilai Kelas")+'<div class="card"><h2>Masuk Guru</h2><input type="text" id="pin" placeholder="PIN guru" autocomplete="off" value="'+esc(PIN)+'"><div class="err" id="er">'+(msg||"")+'</div><div class="row"><button class="btn" onclick="loadCloud()">LIHAT REKAP</button><button class="btn ghost" onclick="location.hash=\'\'">Kembali</button></div></div>';
+}
+function loadCloud(){
+  var p=$("#pin");if(p)PIN=p.value.trim();$("#er").textContent="Memuat data...";
+  fetch(SHEET_URL+"?pin="+encodeURIComponent(PIN)).then(function(r){return r.json()}).then(function(d){
+    if(d&&d.error){teacherCloud("PIN salah.");return}showRows(d)
+  }).catch(function(){var e=$("#er");if(e)e.textContent="Gagal memuat. Cek internet atau URL Apps Script."});
+}
+function showRows(d){
+  d=(d||[]).sort(function(a,b){return String(a.name).localeCompare(String(b.name))});window._rows=d;
+  var h=sign("Rekap Nilai Kelas")+'<div class="card"><h2>'+d.length+' siswa</h2><div class="wrap"><table><tr><th>Nama</th>';
+  for(var i=1;i<=5;i++)h+='<th>M'+i+'</th>';h+='<th>Rata-rata</th></tr>';
+  d.forEach(function(r){var sc=r.scores||[];h+='<tr><td>'+esc(r.name)+'</td>';for(var i=0;i<5;i++)h+='<td>'+(sc[i]==null?'\u2013':sc[i])+'</td>';h+='<td class="tot">'+total(sc)+'</td></tr>'});
+  if(!d.length)h+='<tr><td colspan="7">Belum ada data.</td></tr>';
+  h+='</table></div><div class="row"><button class="btn" onclick="loadCloud()">Muat ulang</button><button class="btn" onclick="copyCsv()">Salin rekap (CSV)</button><button class="btn ghost" onclick="location.hash=\'\'">Kembali</button></div><div class="err" id="er" style="color:var(--green)"></div></div>';
+  app.innerHTML=h;
 }
 function route(){
-  if(unsub){try{unsub()}catch(e){}unsub=null}
-  if(location.hash==="#guru"){
-    teacher();
-    try{if(window.claude&&claude.use)claude.use("db").then(function(db){if(!db||location.hash!=="#guru")return;unsub=db.collection("results").onSnapshot(function(sn){remote=sn.docs.map(function(d){return d.data()});if(location.hash==="#guru")teacher()},function(){})}).catch(function(){})}catch(e){}
-  }else{document.body.classList.remove("print-guru");S=ls("rr_cur")||S;S.name?map():home()}
+  if(location.hash==="#guru"){SHEET_URL?teacherCloud():teacher();return}
+  S=ls("rr_cur")||S;
+  if(S.name){map();if(SHEET_URL&&ls("rr_pend"))sync()}else home();
 }
 window.addEventListener("hashchange",route);route();
 </script>
